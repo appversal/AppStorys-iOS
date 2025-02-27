@@ -43,7 +43,7 @@ final class WidgetViewModel: ObservableObject {
                     return
                 }
 
-                let campaignList = try await apiService.getCampaignList(forScreen: screenName)
+                let campaignList = try await apiService.getCampaignList(forScreen: screenName, position: position)
                 let campaigns = try await apiService.getCampaigns(campaignList: campaignList)
 
                 guard let widgetCampaign = campaigns.first(where: {$0.campaignType == widgetCampaignType }) else { return
