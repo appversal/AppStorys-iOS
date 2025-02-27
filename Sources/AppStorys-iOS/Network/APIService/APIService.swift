@@ -8,6 +8,7 @@ class APIService: @unchecked Sendable {
         case validateAccount = "validate-account/"
         case trackScreen = "track-screen/"
         case trackUser = "track-user/"
+        case trackAction = "track-action/"
     }
 
     func validateAccount(appID: String, accountID: String) async throws -> Bool {
@@ -44,6 +45,15 @@ class APIService: @unchecked Sendable {
         return response.campaigns
     }
 
+    func trackAction(type: ActionType, userID: String, campaignID: String, widgetID: String) async throws {
+        let requestBody = TrackActionRequest(campaign_id: campaignID, user_id: userID, event_type: type.rawValue, widget_id: widgetID)
+
+        let response: TrackActionResponse = try await performRequest(
+            endpoint: Endpoints.trackAction.rawValue,
+            body: requestBody
+        )
+    }
+
     private func performRequest<T: Decodable>(
         endpoint: String,
         method: String = "POST",
@@ -74,10 +84,16 @@ class APIService: @unchecked Sendable {
         return try JSONDecoder().decode(T.self, from: data)
     }
 
-
     private struct TrackUserRequest: Codable {
         let user_id: String
         let campaign_list: [String]
+    }
+
+    private struct TrackActionRequest: Codable {
+        let campaign_id: String
+        let user_id: String
+        let event_type: String
+        let widget_id: String
     }
 }
 
@@ -85,4 +101,9 @@ enum APIError: Error {
     case noAccessToken
     case invalidResponse
     case invalidURL
+}
+
+enum ActionType: String {
+    case view = "IMP"
+    case click = "CLK"
 }

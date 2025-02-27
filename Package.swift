@@ -11,9 +11,16 @@ let package = Package(
             name: "AppStorys-iOS",
             targets: ["AppStorys-iOS"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", from: "3.0.0")
+    ],
     targets: [
         .target(
-            name: "AppStorys-iOS"),
+            name: "AppStorys-iOS",
+            dependencies: [
+                .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
+            ]
+        )
 
     ]
 )
