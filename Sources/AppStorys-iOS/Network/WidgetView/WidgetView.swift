@@ -34,12 +34,14 @@ public struct WidgetView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: viewModel.widgetHeight)
 
-            HStack(spacing: 6) {
-                ForEach(0..<viewModel.images.count, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 5)
-                        .frame(width: index == viewModel.selectedIndex ? Constants.selectedDotWidth : Constants.dotDefaultSize, height: Constants.dotDefaultSize)
-                        .foregroundColor(index == viewModel.selectedIndex ? .black : .gray.opacity(0.5))
-                        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedIndex)
+            if viewModel.images.count > 1 {
+                HStack(spacing: 6) {
+                    ForEach(0..<viewModel.images.count, id: \.self) { index in
+                        RoundedRectangle(cornerRadius: 5)
+                            .frame(width: index == viewModel.selectedIndex ? Constants.selectedDotWidth : Constants.dotDefaultSize, height: Constants.dotDefaultSize)
+                            .foregroundColor(index == viewModel.selectedIndex ? .black : .gray.opacity(0.5))
+                            .animation(.easeInOut(duration: 0.3), value: viewModel.selectedIndex)
+                    }
                 }
             }
         }
