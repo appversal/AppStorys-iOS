@@ -27,7 +27,7 @@ class APIService: @unchecked Sendable {
     }
 
     func getCampaignList(forScreen screenName: String, position: String) async throws -> [String] {
-        let requestBody = TrackScreenRequest(screen_name: screenName, position: position)
+        let requestBody = TrackScreenRequest(screen_name: screenName, position_list: [position])
         let response: CampaignListResponse = try await performRequest(
             endpoint: Endpoints.trackScreen.rawValue,
             body: requestBody
@@ -98,7 +98,7 @@ class APIService: @unchecked Sendable {
 
     private struct TrackScreenRequest: Codable {
         let screen_name: String
-        let position: String
+        let position_list: [String]
     }
 }
 
