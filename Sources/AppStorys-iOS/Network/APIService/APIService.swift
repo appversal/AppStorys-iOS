@@ -34,7 +34,7 @@ class APIService: @unchecked Sendable {
         return response.campaignList
     }
 
-    func getCampaigns(campaignList: [String]) async throws -> [Campaign] {
+    func getCampaigns(campaignList: [String]) async throws -> [CampaignForWidget] {
         let userId = UUID().uuidString
         let requestBody = TrackUserRequest(user_id: userId, campaign_list: campaignList)
         let response: CampaignDataResponse = try await performRequest(
@@ -81,8 +81,11 @@ class APIService: @unchecked Sendable {
     }
 }
 
+<<<<<<< Updated upstream
 enum APIError: Error {
     case noAccessToken
     case invalidResponse
     case invalidURL
 }
+=======
+>>>>>>> Stashed changes
