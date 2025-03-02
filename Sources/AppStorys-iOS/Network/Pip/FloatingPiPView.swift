@@ -9,7 +9,7 @@
 import SwiftUI
 import AVKit
 
-class AVPlayerManager: ObservableObject {
+public class AVPlayerManager: ObservableObject {
     @Published var player = AVPlayer()
 
     func updateVideoURL(_ urlString: String) {
@@ -41,7 +41,7 @@ class AVPlayerManager: ObservableObject {
 import SwiftUI
 import AVKit
 
-struct FloatingPiPView: View {
+public struct FloatingPiPView: View {
     @State private var isMuted = false
     @State private var isVisible = true
     @State private var position = CGSize.zero
@@ -49,16 +49,27 @@ struct FloatingPiPView: View {
     @StateObject private var playerManager = AVPlayerManager()
     @StateObject private var apiService = APIServiceTwo()
     
+    
+    
     let appID: String
         let accountID: String
         let screenName: String
-        let positionID: String  // Renamed to avoid conflict with `position` state
+        let positionID: String
+    
+    public init(appID: String, accountID: String, screenName: String, position: String) {
+        self.appID = appID
+        self.accountID = accountID
+        self.screenName = screenName
+        self.positionID = position
+       
+    }
+
 
     var pipCampaign: PipCampaign? {
         apiService.pipCampaigns.first
     }
 
-    var body: some View {
+    public var body: some View {
         if let campaign = pipCampaign, let videoURL = campaign.details?.first?.smallVideo {
             let videoWidth = CGFloat(campaign.details?.first?.width ?? 230)
             let videoHeight = CGFloat(campaign.details?.first?.height ?? 405)
@@ -263,6 +274,6 @@ struct CustomAVPlayerView: UIViewControllerRepresentable {
         appID: "afadf960-3975-4ba2-933b-fac71ccc2002",
         accountID: "13555479-077f-445e-87f0-e6eae2e215c5",
         screenName: "Home Screen",
-        positionID: "1"
+        position: "1"
     )
 }

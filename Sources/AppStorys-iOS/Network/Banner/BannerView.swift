@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct BannerView: View {
+public struct BannerView: View {
     @StateObject private var apiService = APIServiceTwo()
     
     let appID: String
@@ -8,7 +8,17 @@ struct BannerView: View {
     let screenName: String
     let position: String    
 
-    var body: some View {
+    
+    // ✅ Public initializer (after making APIServiceTwo public)
+        public init(appID: String, accountID: String, screenName: String, position: String) {
+            self.appID = appID
+            self.accountID = accountID
+            self.screenName = screenName
+            self.position = position
+           
+        }
+    
+    public var body: some View {
         ZStack(alignment: .topTrailing) {
             if let banCampaign = apiService.banCampaigns.first,
                let imageUrl = banCampaign.details?.image,

@@ -16,7 +16,7 @@ struct TrackScreenResponse: Codable {
     let campaigns: [String]
 }
 @MainActor
-class APIServiceTwo: ObservableObject {
+public class APIServiceTwo: ObservableObject {
     @Published var accessToken: String?
     @Published var campaigns: [String] = []
     @Published var banCampaigns: [Campaign] = [] 
