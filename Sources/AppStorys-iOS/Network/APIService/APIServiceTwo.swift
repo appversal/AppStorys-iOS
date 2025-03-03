@@ -23,14 +23,14 @@ public class APIServiceTwo: ObservableObject {
     @Published var pipCampaigns: [PipCampaign] = []
 
     let appID = "afadf960-3975-4ba2-933b-fac71ccc2002"
-     let userID = "13555479-077f-445e-87f0-e6eae2e215c5"
+    let userID = "13555479-077f-445e-87f0-e6eae2e215c5"
     
     private enum Endpoints: String {
             case validateAccount = "/validate-account/"
             case trackScreen = "/track-screen/"
             case trackUser = "/track-user/"
             case trackAction = "/track-action/"
-        }
+    }
     
     func validateAccount(appID: String, accountID: String, screenName: String, position: String) {
         let url = URL(string: "https://backend.appstorys.com/api/v1/users\(Endpoints.validateAccount.rawValue)")!

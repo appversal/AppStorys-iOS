@@ -42,8 +42,6 @@ struct Campaign: Codable {
     }
 }
 
-
-
 struct Details: Codable {
     let image: String?
     let width: Int?

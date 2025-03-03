@@ -15,7 +15,7 @@ struct TrackUserResponsePip: Codable {
 struct PipCampaign: Codable {
     let id: String
     let campaignType: String
-    let details: [DetailsPip]? // Change to array to handle both cases
+    let details: [DetailsPip]? 
     let position: String?
 
     enum CodingKeys: String, CodingKey {

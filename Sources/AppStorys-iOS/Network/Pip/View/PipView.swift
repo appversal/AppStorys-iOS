@@ -20,7 +20,6 @@ public class AVPlayerManager: ObservableObject {
         let playerItem = AVPlayerItem(url: url)
         player.replaceCurrentItem(with: playerItem)
 
-        // ✅ Ensure video loops when it ends
         NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: playerItem,
@@ -38,18 +37,14 @@ public class AVPlayerManager: ObservableObject {
     }
 }
 
-import SwiftUI
-import AVKit
-
 public struct FloatingPiPView: View {
     @State private var isMuted = false
     @State private var isVisible = true
     @State private var position = CGSize.zero
     @State private var isExpanded = false
+    @State private var showFullScreen = false
     @StateObject private var playerManager = AVPlayerManager()
     @StateObject private var apiService = APIServiceTwo()
-    
-    
     
     let appID: String
         let accountID: String
@@ -70,10 +65,11 @@ public struct FloatingPiPView: View {
     }
 
     public var body: some View {
+        
         if let campaign = pipCampaign, let videoURL = campaign.details?.first?.smallVideo {
             let videoWidth = CGFloat(campaign.details?.first?.width ?? 230)
             let videoHeight = CGFloat(campaign.details?.first?.height ?? 405)
-
+            
             ZStack {
                 CustomAVPlayerView(player: playerManager.player)
                     .frame(width: isExpanded ? UIScreen.main.bounds.width : videoWidth,
@@ -113,7 +109,7 @@ public struct FloatingPiPView: View {
                         }
                     }
                     .edgesIgnoringSafeArea(isExpanded ? .all : [])
-
+                
                 VStack (alignment:.leading){
                     HStack {
                         Button(action: {
@@ -162,7 +158,12 @@ public struct FloatingPiPView: View {
                 VStack {
                     HStack {
                         Spacer()
-                        Button(action: { isExpanded.toggle() }) {
+                        Button(action: { if showFullScreen {
+                            showFullScreen = false
+                            isVisible = true  // Bring back PiP mode
+                        } else {
+                            showFullScreen = true
+                        }}) {
                             Image(systemName: "rectangle.expand.vertical")
                                 .resizable()
                                 .scaledToFit()
@@ -216,6 +217,25 @@ public struct FloatingPiPView: View {
                    height: isExpanded ? UIScreen.main.bounds.height : videoHeight)
             .transition(.move(edge: .trailing))
             .animation(.easeInOut, value: isVisible)
+            .fullScreenCover(isPresented: $showFullScreen, onDismiss: {
+                isVisible = true  // Restore PiP when full screen is dismissed
+            }) {
+                FullScreenPipView(
+                    appID: appID,
+                    accountID: accountID,
+                    screenName: screenName,
+                    position: positionID,
+                    isVisible: $isVisible
+                )
+            }
+
+            .onChange(of: showFullScreen) { newValue in
+                if newValue {
+                    isMuted = true
+                    playerManager.player.isMuted = true
+                }
+            }
+
         } else {
             ProgressView("Loading...")
                 .padding()

@@ -8,8 +8,6 @@ public struct BannerView: View {
     let screenName: String
     let position: String    
 
-    
-    // ✅ Public initializer (after making APIServiceTwo public)
         public init(appID: String, accountID: String, screenName: String, position: String) {
             self.appID = appID
             self.accountID = accountID
