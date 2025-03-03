@@ -21,6 +21,7 @@ public class APIServiceTwo: ObservableObject {
     @Published var campaigns: [String] = []
     @Published var banCampaigns: [Campaign] = [] 
     @Published var pipCampaigns: [PipCampaign] = []
+    @Published var csatCampaigns : [CSATCampaign] = []
 
     let appID = "afadf960-3975-4ba2-933b-fac71ccc2002"
     let userID = "13555479-077f-445e-87f0-e6eae2e215c5"
@@ -58,6 +59,7 @@ public class APIServiceTwo: ObservableObject {
                 DispatchQueue.main.async {
                     self.accessToken = decodedResponse.access_token
                     print("Access Token: \(decodedResponse.access_token)")
+                    
                     
                     // Pass screenName and position to trackScreen
                     self.trackScreen(accessToken: decodedResponse.access_token, screenName: screenName, position: position)
@@ -142,14 +144,17 @@ public class APIServiceTwo: ObservableObject {
             do {
                 let decodedResponse = try JSONDecoder().decode(TrackUserResponse.self, from: data)
                 let decodedResponsePip = try JSONDecoder().decode(TrackUserResponsePip.self, from: data)
+                let decodedResponseCSAT = try JSONDecoder().decode(TrackUserResponseCSAT.self, from: data)
                 
                 DispatchQueue.main.async {
                     self.banCampaigns = decodedResponse.campaigns.filter { $0.campaignType == "BAN" }
                     
                     self.pipCampaigns = decodedResponsePip.campaigns.filter { $0.campaignType == "PIP" }
+                    self.csatCampaigns = decodedResponseCSAT.campaigns.filter { $0.campaignType == "CSAT" }
                     
                     print("BAN Campaigns: \(self.banCampaigns)")
                     print("PIP Campaigns: \(self.pipCampaigns)")
+                    print("CSAT Campaigns: \(self.csatCampaigns)")
                 }
                 
             } catch {
@@ -242,40 +247,40 @@ enum ActionType: String {
 }
 
 
-//struct SwiftUIView: View {
-//    @StateObject private var apiService = APIService()
-//    
-//    var body: some View {
-//        VStack {
-//            Text("Access Token:")
-//                .font(.headline)
-//            Text(apiService.accessToken ?? "No Token")
-//                .foregroundColor(.blue)
-//                .padding()
-//            
-//            Text("Campaigns:")
-//                .font(.headline)
-//            ForEach(apiService.campaigns, id: \.self) { campaign in
-//                Text(campaign)
-//                    .foregroundColor(.green)
-//                    .padding()
-//            }
-//            
-//            Button("Validate Account & Track User") {
-//                apiService.validateAccount( appID: "afadf960-3975-4ba2-933b-fac71ccc2002",
-//                                            accountID: "13555479-077f-445e-87f0-e6eae2e215c5",
-//                                            screenName: "Home Screen",
-//                                            position: "1")
-//            }
-//            .padding()
-//            .background(Color.blue)
-//            .foregroundColor(.white)
-//            .cornerRadius(10)
-//        }
-//        .padding()
-//    }
-//}
-//
-//#Preview {
-//    SwiftUIView()
-//}
+struct SwiftUIView: View {
+    @StateObject private var apiService = APIServiceTwo()
+    
+    var body: some View {
+        VStack {
+            Text("Access Token:")
+                .font(.headline)
+            Text(apiService.accessToken ?? "No Token")
+                .foregroundColor(.blue)
+                .padding()
+            
+            Text("Campaigns:")
+                .font(.headline)
+            ForEach(apiService.campaigns, id: \.self) { campaign in
+                Text(campaign)
+                    .foregroundColor(.green)
+                    .padding()
+            }
+            
+            Button("Validate Account & Track User") {
+                apiService.validateAccount( appID: "afadf960-3975-4ba2-933b-fac71ccc2002",
+                                            accountID: "13555479-077f-445e-87f0-e6eae2e215c5",
+                                            screenName: "Home Screen",
+                                            position: "1")
+            }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        .padding()
+    }
+}
+
+#Preview {
+    SwiftUIView()
+}
