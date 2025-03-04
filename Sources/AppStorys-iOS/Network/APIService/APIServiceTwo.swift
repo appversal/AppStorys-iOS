@@ -155,6 +155,7 @@ public class APIServiceTwo: ObservableObject {
                     print("BAN Campaigns: \(self.banCampaigns)")
                     print("PIP Campaigns: \(self.pipCampaigns)")
                     print("CSAT Campaigns: \(self.csatCampaigns)")
+
                 }
                 
             } catch {
@@ -162,7 +163,6 @@ public class APIServiceTwo: ObservableObject {
             }
         }.resume()
     }
-    
     func trackAction(type: ActionType, userID: String, campaignID: String ) async throws {
         let requestBody = TrackActionRequest(campaign_id: campaignID, user_id: userID, event_type: type.rawValue)
 

@@ -11,7 +11,6 @@ import SwiftUI
 public struct CsatView: View {
     
     @StateObject private var apiService = APIServiceTwo()
-//    @State private var csatCampaign: CSATCampaign?
     @State private var showCSAT: Bool = true
     @State private var selectedStars: Int = 0
     @State private var showThanks: Bool = false
@@ -39,119 +38,119 @@ public struct CsatView: View {
     var csatCampaignMainId: String? {
         apiService.csatCampaigns.first?.details?.first?.id
     }
-
+    
     
     public var body: some View {
-            if showCSAT {
-                VStack {
-                    Spacer()
-                    ZStack(alignment: .topTrailing) {
-                        if csatLoaded {
-                            VStack {
-                                if showThanks {
-                                    thanksView()
-                                } else {
-                                    surveyView()
-                                }
+        if showCSAT {
+            VStack {
+                Spacer()
+                ZStack(alignment: .topTrailing) {
+                    if csatLoaded {
+                        VStack {
+                            if showThanks {
+                                thanksView()
+                            } else {
+                                surveyView()
                             }
-                            .padding()
-                            .background(hexToColor(apiService.csatCampaigns.first?.details?.first?.styling.csatBackgroundColor ?? "#e8fcf7"))
-                            .cornerRadius(24)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                            .padding()
                         }
-                        
-                        // Close Button (X)
-                        if csatLoaded {
-                            Button(action: {
-                                showCSAT = false
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.gray)
-                                    .font(.title2)
-                                    .padding(10)
-                            }
-                            .offset(x: -10, y: 10)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .onAppear {
-                  
-                    print("CsatView appeared")
-                    csatLoaded = false
-                    apiService.validateAccount(appID: appID, accountID: accountID, screenName: screenName, position: positionID)
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    csatLoaded = true
-                                }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        if let campaignID = csatCampaign?.id, apiService.accessToken != nil {
-                            trackAction(campaignID: campaignID, actionType: .view)
-                        } else {
-                            print("Skipping trackAction: Missing campaign ID or access token")
-                        }
+                        .padding()
+                        .background(hexToColor(apiService.csatCampaigns.first?.details?.first?.styling.csatBackgroundColor ?? "#e8fcf7"))
+                        .cornerRadius(24)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                        .padding()
                     }
                     
-                    scheduleCsatDisplay()
+                    // Close Button (X)
+                    if csatLoaded {
+                        Button(action: {
+                            showCSAT = false
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .font(.title2)
+                                .padding(10)
+                        }
+                        .offset(x: -10, y: 10)
+                    }
                 }
-
-
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .onAppear {
+                
+                print("CsatView appeared")
+                csatLoaded = false
+                apiService.validateAccount(appID: appID, accountID: accountID, screenName: screenName, position: positionID)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    csatLoaded = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if let campaignID = csatCampaign?.id, apiService.accessToken != nil {
+                        trackAction(campaignID: campaignID, actionType: .view)
+                    } else {
+                        print("Skipping trackAction: Missing campaign ID or access token")
+                    }
+                }
+                
+                scheduleCsatDisplay()
+            }
+            
+            
         }
+    }
     
     // MARK: - Submit Button Update
     private func submitFeedback() {
-            print("Feedback submitted:")
-            print("Stars: \(selectedStars)")
-            print("Selected Option: \(selectedOption ?? "None")")
-            print("Additional Comments: \(additionalComments)")
-            
-            if let campaignID = csatCampaign?.id {
-                captureCsatResponse(csatId: csatCampaignMainId!, userId: accountID, rating: selectedStars, feedbackOption: selectedOption, additionalComments: additionalComments)
-            }
-            
-            showThanks = true
-            
+        print("Feedback submitted:")
+        print("Stars: \(selectedStars)")
+        print("Selected Option: \(selectedOption ?? "None")")
+        print("Additional Comments: \(additionalComments)")
+        
+        if let campaignID = csatCampaign?.id {
+            captureCsatResponse(csatId: csatCampaignMainId!, userId: accountID, rating: selectedStars, feedbackOption: selectedOption, additionalComments: additionalComments)
         }
-
+        
+        showThanks = true
+        
+    }
+    
     private func captureCsatResponse(csatId: String, userId: String, rating: Int, feedbackOption: String?, additionalComments: String?) {
-            guard let accessToken = apiService.accessToken else {
-                print("Error: Access token not found")
+        guard let accessToken = apiService.accessToken else {
+            print("Error: Access token not found")
+            return
+        }
+        
+        let url = URL(string: "https://backend.appstorys.com/api/v1/campaigns/capture-csat-response/")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        let body: [String: Any] = [
+            "csat": csatId,
+            "user_id": userId,
+            "rating": rating,
+            "feedback_option": feedbackOption ?? "",
+            "additional_comments": additionalComments ?? ""
+        ]
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error submitting CSAT response: \(error)")
                 return
             }
-            
-            let url = URL(string: "https://backend.appstorys.com/api/v1/campaigns/capture-csat-response/")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-            
-            let body: [String: Any] = [
-                "csat": csatId,
-                "user_id": userId,
-                "rating": rating,
-                "feedback_option": feedbackOption ?? "",
-                "additional_comments": additionalComments ?? ""
-            ]
-            
-            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-            
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("Error submitting CSAT response: \(error)")
-                    return
-                }
-                guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-                    print("Error: Invalid server response")
-                    return
-                }
-                print("CSAT response submitted successfully")
-            }.resume()
-        }
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                print("Error: Invalid server response")
+                return
+            }
+            print("CSAT response submitted successfully")
+        }.resume()
+    }
     
     // MARK: - Survey View
     @ViewBuilder
@@ -257,7 +256,7 @@ public struct CsatView: View {
                     }
                     .padding(.top, 10)
                 }
-
+                
             }
         }
     }
@@ -276,33 +275,33 @@ public struct CsatView: View {
                         ProgressView()
                     }
                 }
-
+                
                 Text(details.thankyouText)
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.black)
-
+                
                 Text(details.thankyouDescription)
                     .foregroundColor(.gray)
-
+                
                 Button(action: {
                     
                     if let urlString = csatCampaign?.details?.first?.link {
-                            print("Found link: \(urlString)")
-                            
-                            if let url = URL(string: urlString) {
-                                if UIApplication.shared.canOpenURL(url) {
-                                    print("Opening URL: \(url)")
-                                    UIApplication.shared.open(url)
-                                } else {
-                                    print("Cannot open URL: \(url)")
-                                }
+                        print("Found link: \(urlString)")
+                        
+                        if let url = URL(string: urlString) {
+                            if UIApplication.shared.canOpenURL(url) {
+                                print("Opening URL: \(url)")
+                                UIApplication.shared.open(url)
                             } else {
-                                print("Invalid URL format: \(urlString)")
+                                print("Cannot open URL: \(url)")
                             }
                         } else {
-                            print("No link found in campaign details")
+                            print("Invalid URL format: \(urlString)")
                         }
+                    } else {
+                        print("No link found in campaign details")
+                    }
                     
                     showCSAT = false
                     UserDefaults.standard.setValue(true, forKey: "csat_loaded")
@@ -318,21 +317,21 @@ public struct CsatView: View {
             .frame(maxWidth: .infinity)
         }
     }
-
+    
     
     // MARK: - CSAT Delay Logic
-        private func scheduleCsatDisplay() {
-            let delay = Int(csatCampaign?.details?.first?.styling.delayDisplay ?? 0)
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay)) {
-                if !csatLoaded {
-                    showCSAT = true
-                }
+    private func scheduleCsatDisplay() {
+        let delay = Int(csatCampaign?.details?.first?.styling.delayDisplay ?? 0)
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay)) {
+            if !csatLoaded {
+                showCSAT = true
             }
         }
-        
+    }
+    
     
     // MARK: - Color Conversion
-    private func hexToColor(_ hex: String) -> Color {
+    func hexToColor(_ hex: String) -> Color {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         if hexSanitized.hasPrefix("#") {
             hexSanitized.remove(at: hexSanitized.startIndex)
@@ -353,7 +352,7 @@ public struct CsatView: View {
             print("Access Token is missing.")
             return
         }
-
+        
         Task {
             do {
                 try await apiService.trackAction(type: actionType, userID: appID, campaignID: campaignID)
@@ -363,7 +362,7 @@ public struct CsatView: View {
             }
         }
     }
-
+    
 }
 // MARK: - Preview
 struct CsatView_Previews: PreviewProvider {
@@ -380,7 +379,3 @@ struct CsatView_Previews: PreviewProvider {
 }
 
 
-
-
-
-//link
