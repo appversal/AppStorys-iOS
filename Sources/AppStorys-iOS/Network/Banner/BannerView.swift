@@ -2,20 +2,11 @@ import SwiftUI
 
 public struct BannerView: View {
     @StateObject private var apiService = APIServiceTwo()
+    let appID = "afadf960-3975-4ba2-933b-fac71ccc2002"
+    let accountID = "13555479-077f-445e-87f0-e6eae2e215c5"
+    let screenname = "Home Screen"
     
-    let appID: String
-    let accountID: String
-    let screenName: String
-    let position: String    
-
-        public init(appID: String, accountID: String, screenName: String, position: String) {
-            self.appID = appID
-            self.accountID = accountID
-            self.screenName = screenName
-            self.position = position
-           
-        }
-    
+    public init() {}
     public var body: some View {
         ZStack(alignment: .topTrailing) {
             if let banCampaign = apiService.banCampaigns.first,
@@ -65,7 +56,7 @@ public struct BannerView: View {
         }
         .padding(.horizontal, 0)
         .onAppear {
-            apiService.validateAccount(appID: appID, accountID: accountID,screenName: screenName,position: position)
+            apiService.validateAccount(appID: appID, accountID: accountID,screenName: screenname ,position: "1")
         }
     }
 
@@ -90,10 +81,5 @@ public struct BannerView: View {
 }
 
 #Preview {
-    BannerView(
-        appID: "afadf960-3975-4ba2-933b-fac71ccc2002",
-        accountID: "13555479-077f-445e-87f0-e6eae2e215c5",
-        screenName: "Home Screen",
-        position: "1"
-    )
+    BannerView()
 }
